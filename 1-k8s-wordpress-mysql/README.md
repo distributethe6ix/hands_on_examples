@@ -13,6 +13,11 @@
 While you could use any Kubernetes cluster, even with KinD and Minikube, we are aiming to publicly expose this app and make it accessible using a web-browser and a host name.
 
 ### Clone the repo
+1. Make a new directory `mkdir wordpress`
+2. Change into the directory `cd wordpress`
+3. Clone the repo `git clone https://github.com/distributethe6ix/k8s_examples`
+4. Change into the k8s_examples directory `cd k8s_examples/1-k8s-wordpress-mysql/
+5. Check that the two deployment files are present `ls -la`
 
 ### Install Kubectl
 If you haven't installed `kubectl` yet, here's your chance.
@@ -41,7 +46,10 @@ or
 $curl -sL https://civo.com/get | sh
 ```
 or visit https://github.com/civo/cli for your OS
-2. In your terminal, run the following `civo apikey add [YOUR_KEY_NAME] [API_KEY_FROM_ABOVE]`
+2. In your terminal, run the following `
+```
+civo apikey add [YOUR_KEY_NAME] [API_KEY_FROM_ABOVE]
+```
 3. At this point, you are authenticated into Civo cloud via the CLI
 4. Go ahead and run `civo kubernetes ls` with a similar output
 ```
@@ -51,9 +59,22 @@ or visit https://github.com/civo/cli for your OS
 | 13371337-1337-1337-1337-133713371337 | mywpapp01 | NYC1   |     3 |     1 | ACTIVE |
 +--------------------------------------+-----------+--------+-------+-------+--------+
 ```
-5. Now that you see the name and status of your cluster you can download the kubeconfig and merge it with an existing one, so run the following command `civo kubernetes config [NAME_OF_YOUR_CLUSTER] --save --merge`
-6. Next, you want to run `kubectl config get-contexts` to see your cluster's context.
-7. Set your context with `kubectl config use-context [YOUR_CLUSTER_NAME_CONTEXT]
+
+5. Now that you see the name and status of your cluster you can download the kubeconfig and merge it with an existing one, so run the following command `
+```
+civo kubernetes config [NAME_OF_YOUR_CLUSTER] --save --merge
+```
+
+6. Next, you want to run this to see your cluster's context
+```
+kubectl config get-contexts
+```
+
+7. Set your context with `kubectl config use-context [YOUR_CLUSTER_NAME_CONTEXT] 
+```
+kubectl config use-context [YOUR_CLUSTER_NAME_CONTEXT]
+```
+
 8. Check your cluster with `kubectl get nodes -o wide`
 ```
 NAME                                             STATUS   ROLES    AGE    VERSION         INTERNAL-IP   EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION      CONTAINER-RUNTIME
@@ -71,6 +92,12 @@ secretGenerator:
 - name: mysql-pass
   literals:
   - password=YOUR_PASSWORD
+resources:
+  - mysql-deployment.yaml
+  - wordpress-deployment.yaml
 EOF
 ```
-2. Deploy 
+2. Deploy all the components 
+3. ```
+4. kubectl apply -k ./
+5. ```
