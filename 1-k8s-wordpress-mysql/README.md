@@ -97,7 +97,34 @@ resources:
   - wordpress-deployment.yaml
 EOF
 ```
-2. Deploy all the components 
-3. ```
-4. kubectl apply -k ./
-5. ```
+2. Deploy all the components and wait roughly 5-10 minutes because all the infrascture pieces are deploying (compute, networking, and storage) for both the MySQL Database and Wordpress app.
+```
+kubectl apply -k ./
+```
+3. If you've waited about 5-10 minutes, run
+```
+$kubectl get all
+NAME                                   READY   STATUS    RESTARTS   AGE
+pod/wordpress-mysql-766577bbcf-bkff8   1/1     Running   0          3h9m
+pod/wordpress-66866d9f6c-f29wn         1/1     Running   0          3h9m
+
+NAME                      TYPE           CLUSTER-IP    EXTERNAL-IP     PORT(S)        AGE
+service/kubernetes        ClusterIP      10.43.0.1     <none>          443/TCP        3h18m
+service/wordpress-mysql   ClusterIP      None          <none>          3306/TCP       3h9m
+service/wordpress         LoadBalancer   10.43.9.250   1.2.3.4   80:32610/TCP   3h9m
+
+NAME                              READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/wordpress-mysql   1/1     1            1           3h9m
+deployment.apps/wordpress         1/1     1            1           3h9m
+
+NAME                                         DESIRED   CURRENT   READY   AGE
+replicaset.apps/wordpress-mysql-766577bbcf   1         1         1       3h9m
+replicaset.apps/wordpress-66866d9f6c         1         1         1       3h9m
+```
+Followed by a command that tells us about the storage and volume bindings.
+```
+$kubectl get pvc
+NAME             STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+wp-pv-claim      Bound    pvc-608e09c3-ad4c-4e30-9b41-3387e86928d4   20Gi       RWO            civo-volume    3h10m
+mysql-pv-claim   Bound    pvc-60875bf5-a643-48e1-8099-94ee250539a7   20Gi       RWO            civo-volume    3h10m
+```
