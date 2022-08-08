@@ -53,7 +53,7 @@ or
 $curl -sL https://civo.com/get | sh
 ```
 or visit https://github.com/civo/cli for your OS
-2. In your terminal, run the following `
+2. In your terminal, run the following 
 ```
 civo apikey add [YOUR_KEY_NAME] [API_KEY_FROM_ABOVE]
 ```
