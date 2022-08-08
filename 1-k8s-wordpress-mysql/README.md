@@ -1,18 +1,24 @@
 # Wordpress up and running with Civo Kubernetes and MySQL
 ## Prerequisites
 - Git to clone the repo and downlod the MySQL and Wordpress YAMLs.
-- Access to Civo.com Cloud to be able to provision K8s clusters and set DNS records
+- Access to Civo.com Cloud to be able to provision K8s clusters and set DNS records. First time user? Sign up for 1 month and $250 in credits!
 - Civo CLI to download and merge kubeconfig and scale clusters as needed (we will download this)
 - Kubectl to access the K8s cluster
 - The deployment manifests for Wordpress and MySQL
 - A domain name like `example.xyz`. I used Google Domains to purchase marinowijay.info
-- Your domain pointing to custom Name Servers and this is the selected option. I used Civo's nameservers.
+- Your domain pointing to custom Name Servers and this is the selected option. I used Civo's nameservers which you can find under Networking --> DNS
+
+## Set your Nameservers
+
+Make sure you've set your Domain provider's custom DNS servers to point to Civo's! Each domain provider will have a different process. 
+You can obtain the list of name servers by logging into Civo.com and going to Networking --> DNS. The servers will be listed in the middle pane.
 
 ## Let's get deploying!
 
 While you could use any Kubernetes cluster, even with KinD and Minikube, we are aiming to publicly expose this app and make it accessible using a web-browser and a host name.
 
 ### Clone the repo
+
 1. Make a new directory `mkdir wordpress`
 2. Change into the directory `cd wordpress`
 3. Clone the repo `git clone https://github.com/distributethe6ix/k8s_examples`
@@ -36,6 +42,7 @@ If you haven't installed `kubectl` yet, here's your chance.
 7. Copy this to your clipboard, we will need it for the Civo CLI.
 
 ### Download and consume the Civo CLI
+
 1. You are likely on a MAC so you can go ahead and open a terminal and run:
 ```
 brew tap civo/tools
@@ -85,6 +92,7 @@ k3s-mywpapp01-ce62-658ed6-node-pool-2921-cviov   Ready    <none>   172m   v1.22.
 9. If you see `Ready` in the `STATUS` column, the infrastructure is ready and you should be able to deploy Wordpress.
 
 ### Let's deploy our Wordpress App
+
 1. Let's first create our secret with Kustomize. Make sure to change the field `-password=YOUR_PASSWORD` to your own. 
 ```
 cat <<EOF >./kustomization.yaml
@@ -128,3 +136,31 @@ NAME             STATUS   VOLUME                                     CAPACITY   
 wp-pv-claim      Bound    pvc-608e09c3-ad4c-4e30-9b41-3387e86928d4   20Gi       RWO            civo-volume    3h10m
 mysql-pv-claim   Bound    pvc-60875bf5-a643-48e1-8099-94ee250539a7   20Gi       RWO            civo-volume    3h10m
 ```
+4. Earlier on we ran `kubectl get all` to see all the main compoenents of our Wordpress application. Next let's get the public IP of that app:
+```
+kubectl get services wordpress
+NAME        TYPE           CLUSTER-IP    EXTERNAL-IP     PORT(S)        AGE
+wordpress   LoadBalancer   10.43.9.250   1.2.3.4         80:32610/TCP   21h
+```
+Your output should be very similar. Copy the IP address you see under the `EXTERNAL-IP` column. We need this for DNS.
+
+### Setting up DNS and testing
+
+This part assumes you already have a Domain name like `marinowijay.info`.
+Additionally, this part assumes you've specified Next, you'll associate the IP we copied down earlier with that Domain Name.
+1. Log into civo.com and head to Networking --> DNS in the left hand panel.
+2. At the top right, click `Add a domain name` and enter the domain you created before we started this tutorial.
+3. Once created, your domain should appear, with an `Action` box next to it. \
+4. Click the `Action` box and select `DNS Records`
+5. Click `Add record` at the top right of the screen
+6. A new window should appear. Select `A, Alias a hostname to an IP address`
+7. Under name, put in your domain name. In my case, `marinowijay.info`.
+8. In the value field, put in the External IP we copied from the previous section. Mine is `1.2.3.4` ;)
+9. Click Add Record.
+10. At this point, if you pointed your browser to your domain, it may not resolve.
+11. You can either clear your cache, or use incognito-mode, and attempt to access again.
+12. DNS records are propogating globally so it may take anywhere from a minute to an hour for the website to be accessible.
+13. Wait, wait, wait.....wait.
+14. Check again and WOW! Congrats, you have successfully deployed WordPress!
+15. Make sure you login and set a password so no one else does!
+
