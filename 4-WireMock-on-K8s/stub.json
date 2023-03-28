@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/hello-stub"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"message\": \"Hello, This is WireMock on K8s with Istio!\"}"
+  }
+}
