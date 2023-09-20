@@ -1,0 +1,17 @@
+apiVersion: cilium.io/v2alpha1
+kind: CiliumBGPPeeringPolicy
+metadata:
+  name: demo
+spec:
+  nodeSelector:
+    matchLabels:
+      kubernetes.io/os: linux
+  virtualRouters:
+    - exportPodCIDR: true
+      localASN: 65100
+      neighbors:
+        - peerASN: 65000
+          peerAddress: 172.22.0.5/32 # eth0 IP of Bird router
+      serviceSelector:
+        matchLabels:
+          app: nginx
