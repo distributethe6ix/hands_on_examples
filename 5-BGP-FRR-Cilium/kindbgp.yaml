@@ -1,0 +1,14 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+networking:
+  disableDefaultCNI: true   # do not install kindnet
+  kubeProxyMode: none       # do not run kube-proxy
+  podSubnet: "10.252.0.0/16"
+  serviceSubnet: "10.13.0.0/16"
+name: cilium2
+nodes:
+- role: control-plane
+- role: worker
+- role: worker
+- role: worker
+EOF
