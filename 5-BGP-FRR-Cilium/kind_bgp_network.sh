@@ -27,7 +27,7 @@ docker network create \
 chmod +x ./kind
 mv ./kind /some-dir-in-your-PATH/kind
 
-helm upgrade --kube-context kind-cilium2 --install cilium cilium/cilium --namespace kube-system --version 1.14.0 --values - <<EOF
+helm upgrade  --install cilium cilium/cilium --namespace kube-system --version 1.14.2 --values - <<EOF
 kubeProxyReplacement: strict
 k8sServiceHost: cilium2-control-plane # use master node in kind network
 k8sServicePort: 6443               # use api server port
