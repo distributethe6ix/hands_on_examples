@@ -44,7 +44,7 @@ image:
 ipam:
   mode: kubernetes
 tunnel: disabled
-ipv4NativeRoutingCIDR: 10.11.0.0/16
+ipv4NativeRoutingCIDR: 10.12.0.0/16
 bgpControlPlane:
   enabled: true
 autoDirectNodeRoutes: true
