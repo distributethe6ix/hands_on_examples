@@ -8,10 +8,10 @@ spec:
       kubernetes.io/os: linux
   virtualRouters:
     - exportPodCIDR: true
-      localASN: 65100
+      localASN: 65013
       neighbors:
-        - peerASN: 65000
-          peerAddress: 172.22.0.5/32 # eth0 IP of Bird router
+        - peerASN: 65012
+          peerAddress: 172.13.37.5/32 # eth0 IP of Bird router
       serviceSelector:
         matchLabels:
-          app: nginx
+          app: productpage
