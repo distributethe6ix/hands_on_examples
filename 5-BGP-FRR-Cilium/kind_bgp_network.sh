@@ -3,18 +3,24 @@ docker network create \
       --subnet "172.10.0.0/24" \
       --gateway "172.10.0.1" \
       --ip-range "172.10.0.0/24" \
+      -o "com.docker.network.bridge.enable_ip_masquerade=true" \
+      --attachable \
       "bgp1"
 docker network create \
       --driver bridge \
       --subnet "172.11.0.0/24" \
       --gateway "172.11.0.1" \
       --ip-range "172.11.0.0/24" \
+      -o "com.docker.network.bridge.enable_ip_masquerade=true" \
+      --attachable \      
       "bgp2"
 docker network create \
       --driver bridge \
       --subnet "172.13.37.0/24" \
       --gateway "172.13.37.1" \
       --ip-range "172.13.37.0/24" \
+      -o "com.docker.network.bridge.enable_ip_masquerade=true" \
+      --attachable \      
       "bgp3"
 
 [ $(uname -m) = arm64 ] && curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-darwin-arm64
