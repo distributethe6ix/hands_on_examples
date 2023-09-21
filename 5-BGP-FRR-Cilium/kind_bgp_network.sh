@@ -49,3 +49,8 @@ bgpControlPlane:
   enabled: true
 autoDirectNodeRoutes: true
 EOF
+
+#Node annotation:
+kubectl annotate node/bgpk8s-control-plane cilium.io/bgp-virtual-router.65010="local-port=179"
+kubectl annotate node/bgpk8s-worker cilium.io/bgp-virtual-router.65010="local-port=179"
+kubectl annotate node/bgpk8s-worker2 cilium.io/bgp-virtual-router.65010="local-port=179"
