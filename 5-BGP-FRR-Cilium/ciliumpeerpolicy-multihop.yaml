@@ -11,7 +11,7 @@ spec:
       localASN: 65013
       neighbors:
         - peerASN: 65011
-          peerAddress: 172.20.0.5/32
+          peerAddress: 172.20.0.2/32
           eBGPMultihopTTL: 2
           gracefulRestart:
             enabled: true
