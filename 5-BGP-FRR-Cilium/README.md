@@ -110,10 +110,43 @@ kubectl annotate node/bgpk8s-worker2 cilium.io/bgp-virtual-router.65013="local-p
 kubectl annotate node/bgpk8s-worker cilium.io/bgp-virtual-router.65013="local-port=179"
 ```
 
-11.
-12.
-13.
-14.
+11. Let's now deploy a sample NGINX application with two replicas
+```
+kubectl apply -f - <<EOF
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+EOF
+```
+
+12. Let's apply the CiliumLoadBalancerIPPool resource
+``` 
+kubectl apply -f ciliumlbIPpool.yaml
+``` 
+13. Let's expose the application
+```
+kubectl expose deployment/nginx --port=80 --type=LoadBalancer --labels app=nginx
+```
+14. Let's apply a `CiliumBGPPeeringPolicy` resource which defines neighbor peer relationships, to help us establish peering between the KinD Nodes and tor_frr2.
+```
+kubectl apply -f ciliumpeerpolicy-gr.yaml
+```
 15.    
 
 
