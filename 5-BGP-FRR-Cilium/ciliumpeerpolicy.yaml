@@ -12,6 +12,11 @@ spec:
       neighbors:
         - peerASN: 65012
           peerAddress: 172.21.0.5/32
+          gracefulRestart:
+            enabled: true
+            restartTimeSeconds: 120
       serviceSelector:
         matchLabels:
           app: nginx
+
+  
