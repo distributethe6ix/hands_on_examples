@@ -11,7 +11,7 @@ spec:
       localASN: 65013
       neighbors:
         - peerASN: 65012
-          peerAddress: 172.21.0.5
+          peerAddress: 172.21.0.5/32
       serviceSelector:
         matchLabels:
           app: nginx
