@@ -95,13 +95,13 @@ sudo docker exec -it tor_frr1 bash
 ```
 Once in, you will need to edit the file located at `/etc/frr/daemons` and change `bgpd=no` to `bgpd=yes`. Run a reboot from the container, and startup the container again with `docker start torfrr_1`
 
-Repeat the same for tor_frr2.
+Repeat the same for `tor_frr2`.
 
 9. You can also load the configurations of FRR in two ways. Either by staying in bash and copying the contents of `frrbgp1.conf` to /etc/frr/frr.conf, and doing another reload, or you can use the Network Engineer approach by accessing the terminal through `sudo docker exec -it tor_frr1 vtysh`. 
 
 In this state, you are now logged into the router application itself and can directly configure it using the `config` global command and pasting the context of `frrbgp1.conf`. Please ensure you run `copy run start` in `exec` mode after pasting these commands.
 
-Ensure you repeat the process for tor_frr2.
+Ensure you repeat the process for `tor_frr2`.
 
 10. Next, let's annotate the nodes to tell them who they are with an `ASN` and `Router-ID` field. Ensure these match your node IPs.
 ```
@@ -143,10 +143,66 @@ kubectl apply -f ciliumlbIPpool.yaml
 ```
 kubectl expose deployment/nginx --port=80 --type=LoadBalancer --labels app=nginx
 ```
-14. Let's apply a `CiliumBGPPeeringPolicy` resource which defines neighbor peer relationships, to help us establish peering between the KinD Nodes and tor_frr2.
+14. Let's apply a `CiliumBGPPeeringPolicy` resource which defines neighbor peer relationships, to help us establish peering between the KinD Nodes and `tor_frr2`.
 ```
 kubectl apply -f ciliumpeerpolicy-gr.yaml
 ```
-15.    
+15. With the peering policy established, BGP should be functional. You can verify this from two ends.
+From Cilium:
+```
+cilium bgp peers
+```
+```
+Node                   Local AS   Peer AS   Peer Address   Session State   Uptime   Family         Received   Advertised
+bgpk8s-control-plane   65013      65012     172.21.0.5     established     5s       ipv4/unicast   4          3    
+                                                                                    ipv6/unicast   0          1    
+bgpk8s-worker          65013      65012     172.21.0.5     established     6s       ipv4/unicast   4          3    
+                                                                                    ipv6/unicast   0          1    
+bgpk8s-worker2         65013      65012     172.21.0.5     established     2s       ipv4/unicast   4          3    
+                                                                                    ipv6/unicast   0          1    
+```
+16. Graceful restart is enabled through this configuration, and timers are set to 120 seconds. In the case of BGP graceful restart, if you restart the cilium agent, while the neighbors will go offline, the datapath is present and routes remain on the `tor_frr2` routing table.
+
+You can test this by running `kubectl -n kube-system rollout restart daemonset/cilium` and then hop over to `tor_frr2` and run a `show ip route` to see that all the routes are still present and not flushed.
+
+17. Let's remove the current cilium BGP peer policy and use another one which allows for multi-hop.
+```
+```
+kubectl delete -f ciliumpeerpolicy-gr.yaml
+```
+```
+kubectl apply -f ciliumpeerpolicy-multihop.yaml
+```
+
+18. Run `cilium bgp peers` and you will see neighbor status update but it will say `ACTIVE`. 
+This is because there is no direct path between the KinD nodes, and `tor_frr1`. 
+
+To fix this, let's apply some static routes on the KinD Nodes:
+```
+docker exec -it bgpk8s-control-plane bash
+ip route add 172.20.0.3/32 172.21.0.5
+exit
+```
+```
+docker exec -it bgpk8s-worker bash
+ip route add 172.20.0.3/32 172.21.0.5
+exit
+```
+docker exec -it bgpk8s-worker2 bash
+ip route add 172.20.0.3/32 172.21.0.5
+exit
+```
+
+
+
+If you hop over to the `vtysh` of `tor_frr1`, run the following
+
+```
+ip route add 172.21.0.0/24 via 172.20.0.3
+```
+
+And then run `show ip route`, you will now see routes being learned from Cilium, but is two hops away.
+
+19. While this is not a production setup, you can replicate these pieces elsewhere. You are now complete!
 
 
