@@ -2,13 +2,13 @@ name: espressoandbgp
 
 topology:
   nodes:
-    router1:
+    frr1:
       kind: linux
       image: frrouting/frr:latest
       binds:
         - router1/daemons:/etc/frr/daemons
         - router1/frr.conf:/etc/frr/frr.conf
-    router2:
+    frr2:
       kind: linux
       image: frrouting/frr:latest
       binds:
@@ -17,6 +17,8 @@ topology:
     PC1:
       kind: linux
       image: praqma/network-multitool:latest
+    br-clab:
+      kind: bridge
 
 
   links:
