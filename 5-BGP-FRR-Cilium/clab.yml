@@ -4,13 +4,13 @@ topology:
   nodes:
     router1:
       kind: linux
-      image: frrouting/frr:v7.5.1
+      image: frrouting/frr:latest
       binds:
         - router1/daemons:/etc/frr/daemons
         - router1/frr.conf:/etc/frr/frr.conf
     router2:
       kind: linux
-      image: frrouting/frr:v7.5.1
+      image: frrouting/frr:latest
       binds:
         - router2/daemons:/etc/frr/daemons
         - router2/frr.conf:/etc/frr/frr.conf
