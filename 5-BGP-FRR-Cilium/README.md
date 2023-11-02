@@ -166,7 +166,7 @@ bgpk8s-worker2         65013      65012     172.21.0.5     established     2s   
 You can test this by running `kubectl -n kube-system rollout restart daemonset/cilium` and then hop over to `tor_frr2` and run a `show ip route` to see that all the routes are still present and not flushed.
 
 17. Let's remove the current cilium BGP peer policy and use another one which allows for multi-hop.
-```
+
 ```
 kubectl delete -f ciliumpeerpolicy-gr.yaml
 ```
@@ -187,6 +187,7 @@ exit
 docker exec -it bgpk8s-worker bash
 ip route add 172.20.0.3/32 172.21.0.5
 exit
+```
 ```
 docker exec -it bgpk8s-worker2 bash
 ip route add 172.20.0.3/32 172.21.0.5
