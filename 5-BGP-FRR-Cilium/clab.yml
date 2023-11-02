@@ -17,7 +17,7 @@ topology:
     PC1:
       kind: linux
       image: praqma/network-multitool:latest
-    br-cc9c92296f19:
+    br-cc9c92296f19: #You will need to manually determine the docker bridge used for KinD, use brctl show to find this
       kind: bridge
 
 
