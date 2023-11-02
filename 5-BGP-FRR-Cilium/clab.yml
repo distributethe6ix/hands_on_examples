@@ -17,7 +17,7 @@ topology:
     PC1:
       kind: linux
       image: praqma/network-multitool:latest
-    br-7b97e1ff9364:
+    cc9c92296f19:
       kind: bridge
 
 
