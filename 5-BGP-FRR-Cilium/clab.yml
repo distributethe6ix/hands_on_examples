@@ -23,5 +23,5 @@ topology:
 
   links:
     - endpoints: ["frr1:eth1", "frr2:eth1"]
-    - endpoints: ["frr2:eth2", "br-7b97e1ff9364:eth2"]
+    - endpoints: ["frr2:eth2", "br-cc9c92296f19:eth2"]
     - endpoints: ["PC1:eth1", "frr1:eth3"]
