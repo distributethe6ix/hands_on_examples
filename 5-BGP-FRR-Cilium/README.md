@@ -36,6 +36,8 @@ kind create cluster --config=kindbgp.yaml
 ```
 5. Next, let's install cilium using helm
 ```
+helm repo add cilium https://helm.cilium.io/
+
 helm upgrade --install cilium cilium/cilium --namespace kube-system --version 1.14.2 --values - <<EOF
 kubeProxyReplacement: strict
 k8sServiceHost: bgpk8s-control-plane # use master node in kind network
