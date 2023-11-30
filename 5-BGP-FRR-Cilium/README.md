@@ -18,13 +18,34 @@ Our topology will look like this:
 
 1. Next, let's proceed to create 3 Docker networks.
     ```bash
-    docker network create --driver bridge -o "com.docker.network.bridge.enable_ip_masquerade=true" --attachable "bgp1"
+    docker network create \
+      --driver bridge \
+      --subnet "172.24.0.0/16" \
+      --gateway "172.24.0.1" \
+      --ip-range "172.24.0.0/16" \
+      -o "com.docker.network.bridge.enable_ip_masquerade=true" \
+      --attachable \
+      "bgp1"
     ```
     ```bash
-    docker network create --driver bridge -o "com.docker.network.bridge.enable_ip_masquerade=true" --attachable "bgp2"
+    docker network create \
+        --driver bridge \
+        --subnet "172.25.0.0/16" \
+        --gateway "172.25.0.1" \
+        --ip-range "172.25.0.0/16" \
+        -o "com.docker.network.bridge.enable_ip_masquerade=true" \
+        --attachable \
+        "bgp2"
     ```
     ```bash
-    docker network create --driver bridge -o "com.docker.network.bridge.enable_ip_masquerade=true" --attachable "bgp3"
+    docker network create \
+        --driver bridge \
+        --subnet "172.26.0.0/16" \
+        --gateway "172.26.0.1" \
+        --ip-range "172.26.0.0/16" \
+        -o "com.docker.network.bridge.enable_ip_masquerade=true" \
+        --attachable \
+        "bgp3"
     ```
 
 1. Let's set the experimental Docker network to `bgp3` where we'll will deploy our KinD cluster along with associated FRR router
