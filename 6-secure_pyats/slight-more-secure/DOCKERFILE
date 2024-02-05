@@ -1,0 +1,31 @@
+# Build stage
+FROM alpine:latest as builder
+
+# Install Python, pip, and build dependencies
+RUN apk add --update python3 py3-pip \
+    && apk add --virtual build-dependencies \
+    build-base \
+    python3-dev \
+    libffi-dev \
+    openssl-dev
+
+# Upgrade pip and install pyATS
+RUN pip3 install --upgrade pip \
+    && pip3 install pyats
+
+# Runtime stage
+FROM alpine:latest
+
+# Install Python and pip
+RUN apk add --no-cache python3 py3-pip \
+    && ln -sf python3 /usr/bin/python
+
+# Copy installed pyATS from the builder stage
+COPY --from=builder /usr/lib/python3.*/site-packages /usr/lib/python3.*/site-packages
+COPY --from=builder /usr/bin/pyats* /usr/bin/
+
+# Set the working directory
+WORKDIR /tests
+
+# Command to run when the container starts
+CMD ["pyats", "version"]
