@@ -1,0 +1,27 @@
+# Use Alpine Linux as the base image
+FROM alpine:latest
+
+# Install Python and pip
+RUN apk add --update python3 py3-pip
+
+# Install necessary build dependencies
+# These are typically required for some of the dependencies that pyATS might need
+RUN apk add --virtual build-dependencies \
+    build-base \
+    python3-dev \
+    libffi-dev \
+    openssl-dev
+
+# Upgrade pip and install pyATS
+RUN pip3 install --upgrade pip && \
+    pip3 install pyats
+
+# Cleanup unnecessary files
+RUN apk del build-dependencies && \
+    rm -rf /var/cache/apk/*
+
+# Set the working directory
+WORKDIR /tests
+
+# Command to run when the container starts
+CMD ["pyats", "version"]
