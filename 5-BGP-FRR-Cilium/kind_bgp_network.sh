@@ -1,24 +1,24 @@
 docker network create \
       --driver bridge \
-      --subnet "172.10.0.0/24" \
-      --gateway "172.10.0.1" \
-      --ip-range "172.10.0.0/24" \
+      --subnet "172.24.0.0/16" \
+      --gateway "172.24.0.1" \
+      --ip-range "172.24.0.0/16" \
       -o "com.docker.network.bridge.enable_ip_masquerade=true" \
       --attachable \
       "bgp1"
 docker network create \
       --driver bridge \
-      --subnet "172.11.0.0/24" \
-      --gateway "172.11.0.1" \
-      --ip-range "172.11.0.0/24" \
+      --subnet "172.25.0.0/16" \
+      --gateway "172.25.0.1" \
+      --ip-range "172.25.0.0/16" \
       -o "com.docker.network.bridge.enable_ip_masquerade=true" \
       --attachable \      
       "bgp2"
 docker network create \
       --driver bridge \
-      --subnet "172.13.37.0/24" \
-      --gateway "172.13.37.1" \
-      --ip-range "172.13.37.0/24" \
+      --subnet "172.26.0.0/16" \
+      --gateway "172.26.0.1" \
+      --ip-range "172.26.0.0/16" \
       -o "com.docker.network.bridge.enable_ip_masquerade=true" \
       --attachable \      
       "bgp3"
@@ -27,7 +27,7 @@ docker network create \
 chmod +x ./kind
 mv ./kind /some-dir-in-your-PATH/kind
 
-helm upgrade --install cilium cilium/cilium --namespace kube-system --version 1.14.2 --values - <<EOF
+helm upgrade --install cilium cilium/cilium --namespace kube-system --version 1.14.4 --values - <<EOF
 kubeProxyReplacement: strict
 k8sServiceHost: bgpk8s-control-plane # use master node in kind network
 k8sServicePort: 6443               # use api server port
