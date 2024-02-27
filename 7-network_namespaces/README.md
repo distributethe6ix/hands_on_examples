@@ -1,54 +1,73 @@
-
-
-How does networking work within the container space?
-We are now stepping into the land of Containers! 
+# How does networking work within the container space?
+## We are now stepping into the land of Containers! 
 Containers are isolated processes that run on a single operating system. Much like virtualization, containers will consume CPU, Memory, and Disk space, but require significantly less to run, as they are dedicated to a single function or process. Any time a container is created a full operating system isn't required. A container runtime such as containerd and interactive management layer such as Docker, make it possible to manage containers and resources, locally on a singular host.
 
 Someone decides they want to create a small application to ensure it runs almost anywhere, so they decide to create a container image with the necessary binaries, libraries and language definition. There are instructions to compile the code which allows the software inside the container to be executable and return values (as required).
 
 Interestingly enough, containers are isolated through a concept called Networking Namespaces.
 
-Networking Namespaces
+## Networking Namespaces
 Networking namespaces are used for container isolation. You can spin up a process and wrap it in networking namespace which is simply an isolated network.
 
 Since we've developed a ton of networking knowledge it's worthwhile understanding how to build a networking namespace and have processes isolated to further understand containers and the associated networking.
 
 
-Building Networking Namespaces
+## Building Networking Namespaces
 We're going to build a couple of networking namespaces to be able to have each namespace interact or communicate with each other. We will also need to run a few additional commands requiring a quick installation.
 
 One thing we need to do is clean up our IPtables rules from the previous section.
 
+```
 iptables -P INPUT ACCEPT
 iptables -P FORWARD ACCEPT
 iptables -P OUTPUT ACCEPT
+```
 Let's now proceed to install some net-tools.
 
+```
 apt install net-tools
-
+```
+```
 ip netns add sleep && ip netns add webapp
+```
 Let's now output those namespaces in the terminal
-
+```
 ip netns
+```
 Next lets find out what interfaces list the interfaces on the host
-
+```
 ip link
+```
 And let's do the same for each network namespace we created.
-
+```
 ip netns exec sleep ip link
 ip netns exec webapp ip link
+```
 You can even use arp on the host to see what MAC address and IP addresses show up (remember each MAC is associated to an IP), but you will discover that these endpoints in each namespace don't know about each other. These are isolated "broadcast" domains if you will.
 
+```
 arp
+```
+```
 ip netns exec sleep arp
+```
+```
 ip netns exec webapp arp
+```
+
 Now, in order for these two network namespaces to communicate with each other, we need to either create a virtual wire or virtual bridge. If you recall in the physical world, we need a LAN/ethernet cable to connect two devices directly to each other. But we have way more than 2 devices at any given time, on a network. So we need a switch or a virtual bridge, which creates a more multi-access topology. The two network namespaces we created are representative of two different endpoints in their own isolated domain. Let's bridge them together.
 
 We can verify this by checking the routing table of each host, and the two namespaces. By running the two below, you won't see entries for any networks. We haven't assigned any addresses to the two namespaces.
 
+```
 route
+```
+```
 ip netns exec sleep route
+```
+```
 ip netns exec webapp route
+```
 So the best way to fix this is to use the Linux bridge functionality. Let's create one called app-net-0 and then see it present on the host.
 
 ip link add app-net-0 type bridge
@@ -98,9 +117,9 @@ sysctl -w net.ipv4.ip_forward=1
 ip netns exec webapp ping 23.185.0.4
 Now, as you can see, you can ping solo.io's website through the webapp namespace!!!
 
-As a recap, here is what we've built:
 
-container networking
+# As a recap, here is what we've built:
+
 
 Obviously, there is much more to what was just demonstrated here from a network namespace point of view.
 
