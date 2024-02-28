@@ -70,55 +70,87 @@ ip netns exec webapp route
 ```
 So the best way to fix this is to use the Linux bridge functionality. Let's create one called app-net-0 and then see it present on the host.
 
+```
 ip link add app-net-0 type bridge
+```
+
+
+```
 ip link
+```
 If you notice, the state is currently down so we need to turn it up/online.
 
+```
 ip link set dev app-net-0 up
+```
+
 Next, we need to attach virtual wires from each namespace to a port, which we'll attach to the bridge shortly. We also need to assign each virtual wire's endpoint an IP on the 192.168.52.0/24 network, and as well, an IP for the bridge on the very same subnet. This is like assigning an IP address to a process in its own namespace, or even, assigning an IP to a container. This allows for all three to communicate with addressing in the same broadcast domain and subnet.
-
+```
 ip link add veth-sleep type veth peer name veth-sleep-br
+```
+```
 ip link add veth-webapp type veth peer name veth-webapp-br
-
+```
+```
 ip link set veth-sleep netns sleep
 ip link set veth-webapp netns webapp
-
+```
+```
 ip link set veth-sleep-br master app-net-0
 ip link set veth-webapp-br master app-net-0
+```
 
+```
 ip -n sleep addr add 192.168.52.1/24 dev veth-sleep
+```
+```
 ip -n sleep link set veth-sleep up
-
+```
+```
 ip -n webapp addr add 192.168.52.2/24 dev veth-webapp
+```
+```
 ip -n webapp link set veth-webapp up
+```
+
 Let's add the ip to the bridge we created earlier and attach the virtual wires of the namespaces to it.
-
+```
 ip addr add 192.168.52.5/24 dev app-net-0
-
+```
+```
 ip link set dev veth-sleep-br up
 ip link set dev veth-webapp-br up
-If you ping the sleep namespace endpoint, it will go through as the host's app-net-0 interface/bridge can communicate with this namespace
+```
 
-ping 192.168.52.1
+If you ping the sleep namespace endpoint, it will go through as the host's app-net-0 interface/bridge can communicate with this namespace
+`ping 192.168.52.1`
+
 But, if you attempt to ping something external to the network (like the IP of solo.io), it will report as unreachable because no default route exists or we aren't using network address translation.
 
+```
 ip netns exec webapp ping 23.185.0.4
-
 ip netns exec webapp route
-Let's fix this using an iptables rule that allows us to NAT the 192.168.52.0 with an IP on the host that can communicate outbound.
+```
 
+Let's fix this using an iptables rule that allows us to NAT the 192.168.52.0 with an IP on the host that can communicate outbound.
+```
 iptables -t nat -A POSTROUTING -s 192.168.52.0/24 -j MASQUERADE
 ip netns exec webapp ping 23.185.0.4
-So it seems like we are still missing something, let's check the routing table. Where is our default route? Let's add it. And let's also tell the kernel to forward this network traffic as well.
+```
 
+So it seems like we are still missing something, let's check the routing table. Where is our default route? Let's add it. And let's also tell the kernel to forward this network traffic as well.
+```
 ip netns exec webapp route
 ip netns exec webapp ip route add default via 192.168.52.5
+```
+```
 sysctl -w net.ipv4.ip_forward=1
 ip netns exec webapp ping 23.185.0.4
+```
 Now, as you can see, you can ping solo.io's website through the webapp namespace!!!
 
 
-# As a recap, here is what we've built:
+## As a recap, here is what we've built:
 
 
 Obviously, there is much more to what was just demonstrated here from a network namespace point of view.
